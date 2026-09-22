@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE LALTEN - Universal Horror Script Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B0D13;
+      --surface: #141821;
+      --card-bg: #1C2230;
+      --border: #222836;
+      --border-focus: #343E54;
+      --primary: #FF3E3E;
+      --primary-hover: #E02828;
+      --text: #FFFFFF;
+      --text-muted: #8E99A8;
+      --text-dim: #C2CBD6;
+      --sfx-color: #FF8080;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255, 62, 62, 0.15);
+      border: 1.5px solid var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .brand-title { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+    .brand-subtitle {
+      font-size: 13px; color: var(--text-muted);
+      border-left: 1px solid var(--border);
+      padding-left: 12px; margin-left: 6px;
+    }
+    .api-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--text-dim);
+    }
+    .api-badge select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--primary); font-size: 12px; padding: 4px 8px; border-radius: 4px;
+      outline: none; cursor: pointer; font-weight: 600;
+    }
+    .api-badge input {
+      background: transparent; border: none; outline: none;
+      color: #fff; font-size: 12px; width: 180px;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px; max-width: 1400px; margin: 28px auto;
+      padding: 0 24px; flex: 1; width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 8px; padding: 12px 18px; font-weight: 700;
+      font-size: 14px; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px; transition: 0.2s;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-dim); padding: 6px 14px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .sidebar-header { font-size: 17px; font-weight: 700; display: flex; justify-content: space-between; }
+    .topics-list {
+      display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto; max-height: calc(100vh - 240px); padding-right: 4px;
+    }
+    .topic-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px; cursor: pointer; transition: 0.2s;
+    }
+    .topic-card:hover { background: var(--card-bg); border-color: var(--border-focus); }
+    .topic-card.active { border: 1.5px solid var(--primary); background: var(--card-bg); }
+    .topic-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .topic-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .retention-tag {
+      background: rgba(255, 62, 62, 0.15); color: var(--primary);
+      border: 1px solid rgba(255, 62, 62, 0.3); padding: 2px 8px;
+      border-radius: 12px; font-size: 11px; font-weight: 700;
+    }
+    .topic-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .content-area { display: flex; flex-direction: column; gap: 18px; }
+    .action-bar { display: flex; gap: 12px; }
+    .topic-input {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0 16px; color: #fff; font-size: 14px; outline: none;
+    }
+    .topic-input:focus { border-color: var(--primary); }
+
+    .script-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; display: flex; flex-direction: column;
+      gap: 20px; min-height: 600px;
+    }
+    .script-meta-row {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border); padding-bottom: 16px;
+    }
+    .pills-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      background: var(--card-bg); border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 12px; padding: 4px 10px;
+      border-radius: 6px; font-weight: 500;
+    }
+    
+    .scenes-stack { display: flex; flex-direction: column; gap: 20px; }
+    .scene-box {
+      border-left: 3px solid var(--primary); padding-left: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      background: rgba(28, 34, 48, 0.2); border-radius: 0 8px 8px 0;
+      padding-top: 8px; padding-bottom: 8px;
+    }
+    .scene-heading { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .cue-item { font-size: 13px; line-height: 1.6; }
+    .cue-label { font-weight: 700; color: var(--text-muted); margin-right: 4px; }
+    .cue-text { color: var(--text-dim); }
+    .cue-dialogue { color: #fff; }
+    .cue-char { color: var(--primary); font-weight: 700; }
+    .cue-sfx { color: var(--sfx-color); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    
+    .loading-spinner {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 250px; font-size: 15px; color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">🏮</div>
+      <div class="brand-title">THE LALTEN</div>
+      <div class="brand-subtitle">Universal AI Horror Engine</div>
+    </div>
+    <div class="api-badge">
+      <select id="apiProvider" onchange="updatePlaceholder()">
+        <option value="gemini">Google Gemini</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="openai">OpenAI (ChatGPT)</option>
+        <option value="groq">Groq (Llama-3)</option>
+      </select>
+      <input type="password" id="apiKeyInput" placeholder="Gemini Key daalein">
+    </div>
+  </header>
+
+  <div class="app-container">
+
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span>Trending Topics</span>
+        <span style="font-size: 12px; color: var(--text-muted);">Research Backed</span>
+      </div>
+      <button class="btn-primary" onclick="generateLiveTopics()">
+        <span>⚡</span> Generate Fresh Topics
+      </button>
+
+      <div class="topics-list" id="topicsContainer"></div>
+    </div>
+
+    <div class="content-area">
+      <div class="action-bar">
+        <input type="text" id="activeTopicInput" class="topic-input" placeholder="Yahan koi bhi horror idea likhein ya list me se select karein...">
+        <button class="btn-primary" onclick="generateLiveScript()">Generate Script 🚀</button>
+      </div>
+
+      <div class="script-card">
+        <div class="script-meta-row">
+          <div class="pills-group">
+            <span class="pill">⏱️ 1-3 Min (250-450 Words)</span>
+            <span class="pill">⚖️ 50% Narrator / 50% Dialogue</span>
+            <span class="pill">🛡️ YouTube 15+ Safe</span>
+          </div>
+          <div>
+            <button class="btn-outline" onclick="copyScriptText()">📋 Copy</button>
+            <button class="btn-outline" onclick="downloadScriptText()">📥 Export TXT</button>
+          </div>
+        </div>
+
+        <div id="scenesContainer" class="scenes-stack"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const SYSTEM_PROMPT = `
+Tum 'THE LALTEN' Scripting Engine ho.
+YouTube 2D horror animation ke liye viral aur retention-backed script likho.
+RULES:
+1. Language: Hindi (Devanagari script).
+2. Word count: 250 se 450 words (1-3 min runtime).
+3. Ratio: 50% Narrator (Atmosphere, internal state), 50% Character Dialogues.
+4. Target: 15+ Psychological Horror (Zero gore, YouTube monetization safe).
+5. Output format strictly valid JSON structure like this:
+[
+  {
+    "num": 1,
+    "name": "Scene Title (0:00 - 0:35)",
+    "visual": "2D Animation visual details",
+    "vo": "Narrator voice over line",
+    "dialogues": [{"char": "CharacterName", "line": "Character dialogue"}],
+    "sfx": "Audio and SFX cues"
+  }
+]
+Output ONLY raw JSON array, nothing else. Do not add markdown backticks if possible.`;
+
+    let topicsData = [
+      { id: 1, title: "वो वॉइस नोट जो मैंने नहीं भेजा", retention: "10/10", desc: "बंद कमरे में भेजे गए WhatsApp वॉइस नोट में अनजान औरत की फुसफुसाहट..." },
+      { id: 2, title: "पाँच सेकंड आगे चलने वाला कैमरा", retention: "9.8/10", desc: "CCTV स्क्रीन पर 5 सेकंड आगे का फुटेज चल रहा है, कुर्सी की तरफ बढ़ता साया।" },
+      { id: 3, title: "आख़िरी सीट का अनदेखा मुसाफ़िर", retention: "9.5/10", desc: "कैब की पिछली सीट खाली दिखती है, पर गद्दे पर भारी वजन और अनजान आवाज।" }
+    ];
+
+    function updatePlaceholder() {
+      const provider = document.getElementById('apiProvider').value;
+      const input = document.getElementById('apiKeyInput');
+      if(provider === "gemini") input.placeholder = "Gemini Key daalein";
+      else if(provider === "deepseek") input.placeholder = "DeepSeek Key (sk-...)";
+      else if(provider === "openai") input.placeholder = "OpenAI Key (sk-...)";
+      else if(provider === "groq") input.placeholder = "Groq Key (gsk_...)";
+    }
+
+    async function callUniversalAI(promptText, systemText) {
+      const provider = document.getElementById('apiProvider').value;
+      const key = document.getElementById('apiKeyInput').value.trim();
+
+      if (!key) throw new Error("API Key Missing");
+
+      // 1. GOOGLE GEMINI
+      if (provider === "gemini") {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemText}\n\n${promptText}` }] }]
+          })
+        });
+        const data = await res.json();
+        if(data.error) throw new Error(data.error.message);
+        return data.candidates[0].content.parts[0].text;
+      } 
+      // 2. DEEPSEEK / OPENAI / GROQ
+      else {
+        let url = "";
+        let modelName = "";
+
+        if (provider === "deepseek") {
+          url = "https://api.deepseek.com/chat/completions";
+          modelName = "deepseek-chat";
+        } else if (provider === "openai") {
+          url = "https://api.openai.com/v1/chat/completions";
+          modelName = "gpt-4o-mini";
+        } else if (provider === "groq") {
+          url = "https://api.groq.com/openai/v1/chat/completions";
+          modelName = "llama-3.3-70b-versatile";
+        }
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`
+          },
+          body: JSON.stringify({
+            model: modelName,
+            messages: [
+              { role: "system", content: systemText },
+              { role: "user", content: promptText }
+            ]
+          })
+        });
+        const data = await res.json();
+        if(data.error) throw new Error(data.error.message);
+        return data.choices[0].message.content;
+      }
+    }
+
+    function renderTopics() {
+      const container = document.getElementById('topicsContainer');
+      container.innerHTML = '';
+      topicsData.forEach((t, i) => {
+        const card = document.createElement('div');
+        card.className = `topic-card ${i === 0 ? 'active' : ''}`;
+        card.onclick = () => {
+          document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          document.getElementById('activeTopicInput').value = t.title;
+        };
+        card.innerHTML = `
+          <div class="topic-card-header">
+            <span class="topic-title">${t.title}</span>
+            <span class="retention-tag">${t.retention}</span>
+          </div>
+          <p class="topic-desc">${t.desc}</p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function generateLiveScript() {
+      const topic = document.getElementById('activeTopicInput').value.trim();
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      const container = document.getElementById('scenesContainer');
+
+      if (!topic) {
+        alert("Pehle koi topic likhein ya select karein!");
+        return;
+      }
+
+      if (!apiKey) {
+        alert("💡 Note: Live AI script ke liye upar selected provider ki API Key dalein. Abhi demo script load ki gayi hai.");
+        renderDemoScenes(topic);
+        return;
+      }
+
+      container.innerHTML = '<div class="loading-spinner">🏮 THE LALTEN Engine live script likh raha hai... kripya 3-5 second rukein...</div>';
+
+      try {
+        let rawText = await callUniversalAI(`Topic: ${topic}`, SYSTEM_PROMPT);
+        rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const scenes = JSON.parse(rawText);
+        renderScenes(scenes);
+      } catch (err) {
+        console.error(err);
+        alert("API Error: " + err.message);
+        renderDemoScenes(topic);
+      }
+    }
+
+    async function generateLiveTopics() {
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      if (!apiKey) {
+        alert("Naye AI topics generate karne ke liye pehle API Key enter karein!");
+        return;
+      }
+
+      const prompt = `Generate 5 completely fresh YouTube 2D horror topics for 15+ Indian audience. Output strictly a JSON array of 5 objects with keys: "title", "retention" (e.g. "9.8/10"), and "desc" (1 line). Hindi / Hinglish. Return ONLY raw JSON array.`;
+      
+      try {
+        let raw = await callUniversalAI(prompt, "You are a JSON only output engine.");
+        raw = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+        topicsData = JSON.parse(raw);
+        renderTopics();
+      } catch(e) {
+        alert("Topics fetch karne me dikkat aayi: " + e.message);
+      }
+    }
+
+    function renderScenes(scenes) {
+      const container = document.getElementById('scenesContainer');
+      container.innerHTML = '';
+      scenes.forEach(s => {
+        const block = document.createElement('div');
+        block.className = 'scene-box';
+        let dials = '';
+        if(s.dialogues) {
+          s.dialogues.forEach(d => {
+            dials += `<div class="cue-item"><span class="cue-label">💬 डायलॉग:</span> <span class="cue-char">${d.char}:</span> <span class="cue-dialogue">"${d.line}"</span></div>`;
+          });
+        }
+        block.innerHTML = `
+          <div class="scene-heading">सीन ${s.num}: ${s.name}</div>
+          <div class="cue-item"><span class="cue-label">👁️ विजुअल (2D):</span> <span class="cue-text">${s.visual}</span></div>
+          <div class="cue-item"><span class="cue-label">🎙️ वॉइस-ओवर:</span> <span class="cue-text">${s.vo}</span></div>
+          ${dials}
+          <div class="cue-item"><span class="cue-label">🔊 SFX/BGM:</span> <span class="cue-sfx">${s.sfx}</span></div>
+        `;
+        container.appendChild(block);
+      });
+    }
+
+    function renderDemoScenes(topic) {
+      renderScenes([
+        {
+          num: 1, name: "शुरुआती असामान्य संकेत (0:00 - 0:35)",
+          visual: `2D क्लोज़ अप शॉट। मुख्य पात्र ${topic} के अजीब और भयानक माहौल में फंसा हुआ दिखता है।`,
+          vo: "सन्नाटे को चीरती हुई एक अजीब खामोशी फैली थी। उसे लगा सब सामान्य है, पर असलियत कुछ और थी।",
+          dialogues: [{ char: "रोहन", line: "यहाँ कोई है क्या? ये आवाज़ कहाँ से आई?" }],
+          sfx: "Ambient drone, दूर से आती खुरचने की आवाज़।"
+        },
+        {
+          num: 2, name: "विकराल सच (0:35 - 1:15)",
+          visual: "कैमरा धीरे-धीरे मुड़ता है। दीवार पर एक परछाईं बिना किसी इंसान के बढ़ती दिखाई देती है।",
+          vo: "आईने में जो दिखा उसने उसकी सांसें रोक दीं। वो कमरा खाली नहीं था।",
+          dialogues: [{ char: "अनजान साया", line: "तुमने पीछे मुड़कर क्यों देखा?" }],
+          sfx: "हाई-पिच वायलिन स्क्रीच, दिल की धड़कन (Heartbeat loop)।"
+        },
+        {
+          num: 3, name: "फंसा हुआ रास्ता (1:15 - 2:05)",
+          visual: "कमरे का दरवाज़ा अपने आप लॉक हो जाता है। मोबाइल का नेटवर्क शून्य हो जाता है।",
+          vo: "भागने का हर रास्ता बंद हो चुका था। खौफ अब उसकी आँखों के बिल्कुल सामने खड़ा था।",
+          dialogues: [{ char: "रोहन", line: "दरवाज़ा खोलो! मुझे बाहर जाने दो!" }],
+          sfx: "दरवाज़ा पीटने की आवाज़, तेज़ डिस्टॉर्शन साउंड।"
+        },
+        {
+          num: 4, name: "क्लाइमेक्स व अंत (2:05 - 2:40)",
+          visual: "स्क्रीन पूरी ब्लैकआउट हो जाती है। सिर्फ लाल रंग की दो आँखें स्क्रीन के बीच चमकती हैं।",
+          vo: "अगली सुबह कमरे में कोई नहीं मिला। अगर रात के सन्नाटे में ऐसी आवाज़ सुनाई दे, तो पीछे कभी मत देखना।",
+          dialogues: [{ char: "अनजान साया", line: "अब बहुत देर हो चुकी है..." }],
+          sfx: "Heavy Bass Drop, और अचानक भयानक सन्नाटा।"
+        }
+      ]);
+    }
+
+    function copyScriptText() {
+      const text = document.getElementById('scenesContainer').innerText;
+      navigator.clipboard.writeText(text).then(() => alert("Script Clipboard par copy ho gayi!"));
+    }
+
+    function downloadScriptText() {
+      const text = document.getElementById('scenesContainer').innerText;
+      const topic = document.getElementById('activeTopicInput').value || "The_Lalten_Script";
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${topic.replace(/\\s+/g, '_')}_script.txt`;
+      a.click();
+    }
+
+    window.onload = () => {
+      renderTopics();
+      document.getElementById('activeTopicInput').value = topicsData[0].title;
+      renderDemoScenes(topicsData[0].title);
+    };
+  </script>
+</body>
+</html>
